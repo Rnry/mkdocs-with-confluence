@@ -10,6 +10,8 @@ USERNAME = "<YOUR_USERNAME>"
 PASSWORD = "<YOUR_PASSWORD>"
 
 
+#Uploads a file as an attachment to a Confluence page by it's ID
+#Determines the content-type and posts this file using Confluence REST API
 def upload_attachment(page_id, filepath):
     url = BASE_URL + "/" + page_id + "/child/attachment/"
     headers = {"X-Atlassian-Token": "no-check"}  # no content-type here!
@@ -30,13 +32,15 @@ def upload_attachment(page_id, filepath):
     r.raise_for_status()
 
 
+#Finds and returns the parent page information of the given page name
+#Sends a GET request to fetch a page data
 def find_parent_name_of_page(name):
     idp = find_page_id(name)
     url = BASE_URL + "/" + idp + "?expand=ancestors"
     print(f"URL: {url}")
 
     auth = (USERNAME, PASSWORD)
-    r = requests.get(url, auth=auth)
+    r = requests.get(url, auth=auth) #rename to request
     r.raise_for_status()
     response_json = r.json()
     if response_json:
@@ -47,6 +51,8 @@ def find_parent_name_of_page(name):
         return None
 
 
+#Finds and returns the page ID for a given Confluence page name
+#Queries Confluence page by title and space key
 def find_page_id(name):
     name_confl = name.replace(" ", "+")
     url = BASE_URL + "?title=" + name_confl + "&spaceKey=" + SPACE_NAME + "&expand=history"
@@ -64,6 +70,8 @@ def find_page_id(name):
         return None
 
 
+#Creates a new Confluence page under a given parent page ID
+#Sends a POST request with a basic HTML body and page metadata
 def add_page(page_name, parent_page_id):
     url = BASE_URL + "/"
     print(f"URL: {url}")
@@ -82,6 +90,8 @@ def add_page(page_name, parent_page_id):
     print(r.json())
 
 
+#Updates the content of a Confluence page with given name
+#If the page doesn't exist it creates it
 def update_page(page_name):
     page_id = find_page_id(page_name)
     if page_id:
@@ -111,6 +121,8 @@ def update_page(page_name):
         add_page(page_name)
 
 
+#Reviews and returns the version number of a Confluence page by it's name
+#Used to increment the version during updates
 def find_page_version(name):
     name_confl = name.replace(" ", "+")
     url = BASE_URL + "?title=" + name_confl + "&spaceKey=" + SPACE_NAME + "&expand=version"
@@ -129,9 +141,9 @@ def find_page_version(name):
         return None
 
 
-# add_page()
-# update_page("Test Page")
-# find_page_version("Test Page")
-# find_parent_name_of_page("Test Parent Page")
-# find_page_id("Test Page")
-# upload_attachment()
+#add_page()
+#update_page("Test Page")
+#find_page_version("Test Page")
+#find_parent_name_of_page("Test Parent Page")
+#find_page_id("Test Page")
+#upload_attachment()
